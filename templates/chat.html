@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Chat with Prospect</h2>
+<p>When starting a conversation, please introduce yourself and your company naturally during the conversation.</p>
+<div class="chat-box" id="chat-box">
+    <!-- Chat messages will be appended here -->
+</div>
+<form id="chat-form" style="display: flex; align-items: center; margin-top: 15px;">
+    <input type="text" id="message" class="message-input" placeholder="Type your message here..." required>
+    <button type="submit" class="btn-submit" style="margin-left: 10px;">Send</button>
+</form>
+<br>
+<p style="margin-top: 20px;">
+    <a href="{{ url_for('reset') }}" class="subtle-link">Exit and Start New Conversation</a>
+</p>
+<script>
+
+    // Function to preserve line breaks
+    function formatMessage(message) {
+        return message.replace(/\n/g, '<br>');
+    }
+
+    // Function to create a play button
+    function createPlayButton(role, text) {
+        const playButton = document.createElement('button');
+        playButton.className = 'play-button';
+        playButton.innerHTML = '🔊'; // You can use an icon here
+        playButton.onclick = function() {
+            playAudio(role, text);
+        };
+        return playButton;
+    }
+
+    // Function to play audio using Deepgram TTS
+    function playAudio(role, text) {
+        const url = role === 'prospect' ? '/tts_prospect' : '/tts_coach';
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'text=' + encodeURIComponent(text),
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    const chatForm = document.getElementById('chat-form');
+    const chatBox = document.getElementById('chat-box');
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const userMessage = document.getElementById('message').value;
+
+        // Display user's message
+        const userDiv = document.createElement('div');
+        userDiv.className = 'user-message';
+        userDiv.innerHTML = '<div style="display: inline-block; background: #3589e6; color: #fff; padding: 15px; border-radius: 20px 20px 0 20px; max-width: 70%; line-height: 1.5;">' + formatMessage(userMessage) + '</div>';
+        chatBox.appendChild(userDiv);
+
+        // Clear input field
+        document.getElementById('message').value = '';
+
+        // Scroll to bottom
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Send message to server
+        fetch('/get_response', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'message=' + encodeURIComponent(userMessage)
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            // Display prospect's response
+            const prospectDiv = document.createElement('div');
+            prospectDiv.className = 'prospect-message';
+
+            // Create the inner content div and add styling
+            const innerContentDiv = document.createElement('div');
+            innerContentDiv.style.display = 'inline-block';
+            innerContentDiv.style.background = '#2b3750';
+            innerContentDiv.style.color = '#F3F4F6';
+            innerContentDiv.style.padding = '15px';
+            innerContentDiv.style.borderRadius = '20px 20px 20px 0';
+            innerContentDiv.style.maxWidth = '70%';
+            innerContentDiv.style.lineHeight = '1.5';
+
+            // Add the formatted message to the inner content div
+            innerContentDiv.innerHTML = formatMessage(data.prospect_response);
+
+            // Create and add the play button to the inner content div
+            const prospectPlayButton = createPlayButton('prospect', data.prospect_response);
+            innerContentDiv.appendChild(prospectPlayButton);
+
+            // Append the inner content div to the main prospect message div
+            prospectDiv.appendChild(innerContentDiv);
+
+            // Append the whole prospect message to the chat box
+            chatBox.appendChild(prospectDiv);
+
+
+            // Display coach's feedback
+            const coachDiv = document.createElement('div');
+            coachDiv.className = 'coach-feedback';
+            coachDiv.innerHTML = '<strong>Sales Coach Feedback:</strong><br>Score: ' + data.score + '/10<br>' + formatMessage(data.feedback);
+
+            // Add play button to coach feedback
+            const coachPlayButton = createPlayButton('coach', data.feedback);
+            coachDiv.appendChild(coachPlayButton);
+
+            chatBox.appendChild(coachDiv);
+
+            // Scroll to bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing your message.');
+        });
+    });
+</script>
+{% endblock %}

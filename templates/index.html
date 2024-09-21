@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Enter Prospect and Seller Information</h2>
+<form method="post" action="/">
+    <div class="form-group">
+        <label for="prospect_business">Prospect Business Name:</label>
+        <input type="text" id="prospect_business" name="prospect_business" required>
+    </div>
+    <div class="form-group">
+        <label for="prospect_job_title">Prospect Job Title:</label>
+        <input type="text" id="prospect_job_title" name="prospect_job_title" required>
+    </div>
+    <div class="form-group">
+        <label for="prospect_responsibilities">Prospect Job Responsibilities:</label>
+        <textarea id="prospect_responsibilities" name="prospect_responsibilities" required></textarea>
+    </div>
+    <div class="form-group">
+        <label for="prospect_tone">Prospect Tone:</label>
+        <select id="prospect_tone" name="prospect_tone">
+            <option value="Friendly">Friendly</option>
+            <option value="Formal">Formal</option>
+            <option value="Casual">Casual</option>
+            <option value="Skeptical">Skeptical</option>
+            <option value="Neutral">Neutral</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="model_choice">LLM Provider Choice:</label>
+        <select id="model_choice" name="model_choice">
+            <option value="local">Ollama - Llama3.1 8b</option>
+            <option value="groq">Groq - Llama3.1 70b</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tts_model_choice">Text-to-Speech Model:</label>
+        <select name="tts_model_choice" id="tts_model_choice">
+            <option value="deepgram">Deepgram</option>
+            <option value="elevenlabs">ElevenLabs</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="seller_business">Seller Business Name:</label>
+        <input type="text" id="seller_business" name="seller_business" required>
+    </div>
+    <div class="form-group">
+        <label for="seller_product">Seller Product or Service:</label>
+        <textarea id="seller_product" name="seller_product" required></textarea>
+    </div>
+    <button type="submit" class="btn-submit">Start Chat</button>
+</form>
+{% endblock %}

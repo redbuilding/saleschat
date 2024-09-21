@@ -1,0 +1,35 @@
+# Ignore environment variable file
+.env
+
+# Ignore directories
+/saleschat/
+/flask_session/
+
+# Ignore files
+notes.txt
+coach*
+prospect*
+
+# Python-related ignores
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+
+# VS Code settings
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Log files
+*.log

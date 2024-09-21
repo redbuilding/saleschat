@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Coaching App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; /* Dark Navy Background */
+            color: #F3F4F6; /* Light Gray Text */
+            margin: 0;
+            padding: 0;
+        }
+        body, input, textarea, select, button, label, .btn-send, .btn-submit {
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px 0;
+        }
+        header, footer {
+            background: linear-gradient(90deg, #10B981, #3B82F6); /* Green to Blue Gradient */
+            color: #ffffff;
+            padding: 20px 0;
+        }
+        header h1, footer p {
+            text-align: center;
+            margin: 0;
+        }
+        h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            font-weight: 400;
+        }
+        .chat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            margin-top: 20px;
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #1E293B;
+            border-radius: 8px;
+        }
+        .user-message {
+            text-align: right;
+            margin: 10px 0;
+        }
+        .prospect-message {
+            text-align: left;
+            margin: 10px 0;
+        }
+        .user-message div, .prospect-message div {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .coach-feedback {
+            font-size: 14px;
+            line-height: 1.5;
+            background: rgba(14, 165, 233, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 5px solid #0EA5E9;
+            border-radius: 5px;
+        }
+        /* Adjust the message-input class */
+        .message-input {
+            flex: 1; /* Allows the input to take up available space */
+            padding: 15px;
+            background-color: #1E293B;
+            border: none;
+            border-radius: 5px;
+            color: #F3F4F6;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-right: 10px; /* Optional, if not using inline style */
+        }
+        .message-input::placeholder {
+            color: #94A3B8;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        input[type="text"]::placeholder, textarea::placeholder {
+            color: #94A3B8;
+        }
+        input[type="text"], textarea, select, button, .btn-send, .btn-submit {
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 15px; /* Increased padding */
+            background-color: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 5px;
+            color: #F3F4F6;
+            font-size: 16px; /* Increased font size */
+            box-sizing: border-box; /* Prevents elements from overflowing */
+        }
+        textarea {
+            height: 150px; /* Increased height */
+            resize: vertical; /* Allows vertical resizing */
+        }
+        .btn-submit {
+            background: linear-gradient(90deg, #10B981, #3B82F6); /* Green to Blue Gradient */
+            color: #ffffff;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px; /* Less rounded corners */
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-transform: uppercase;
+            transition: background 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-submit:hover {
+            background: linear-gradient(90deg, #0F9F6B, #2563EB); /* Slightly darker on hover */
+        }
+        a {
+            color: #60A5FA;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .subtle-link {
+            color: #9CA3AF; /* Subtle gray color */
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .subtle-link:hover {
+            text-decoration: underline;
+        }
+        .play-button {
+            background: none;
+            border: none;
+            color: #10B981; /* Green color */
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .play-button:hover {
+            color: #0F9F6B; /* Darker green on hover */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sales Coach</h1>
+    </header>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    <footer>
+        <p>&copy; {{ year }} Sales Coach</p>
+    </footer>
+</body>
+</html>

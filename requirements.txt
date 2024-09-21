@@ -1,0 +1,8 @@
+Flask
+Flask-Session
+requests
+python-dotenv
+uuid
+groq
+deepgram
+elevenlabs
