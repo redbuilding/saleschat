@@ -1,3 +1,5 @@
+<!-- chat.html -->
+
 {% extends "base.html" %}
 {% block content %}
 <h2>Chat with Prospect</h2>
@@ -8,13 +10,13 @@
 <form id="chat-form" style="display: flex; align-items: center; margin-top: 15px;">
     <input type="text" id="message" class="message-input" placeholder="Type your message here..." required>
     <button type="submit" class="btn-submit" style="margin-left: 10px;">Send</button>
+    <button type="button" id="undo-button" class="btn-submit" style="margin-left: 10px;" disabled>Undo</button>
 </form>
 <br>
 <p style="margin-top: 20px;">
     <a href="{{ url_for('reset') }}" class="subtle-link">Exit and Start New Conversation</a>
 </p>
 <script>
-
     // Function to preserve line breaks
     function formatMessage(message) {
         return message.replace(/\n/g, '<br>');
@@ -31,7 +33,7 @@
         return playButton;
     }
 
-    // Function to play audio using Deepgram TTS
+    // Function to play audio using TTS
     function playAudio(role, text) {
         const url = role === 'prospect' ? '/tts_prospect' : '/tts_coach';
         fetch(url, {
@@ -41,7 +43,14 @@
             },
             body: 'text=' + encodeURIComponent(text),
         })
-        .then(response => response.blob())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Error generating audio');
+                });
+            }
+            return response.blob();
+        })
         .then(blob => {
             const audioUrl = URL.createObjectURL(blob);
             const audio = new Audio(audioUrl);
@@ -49,15 +58,20 @@
         })
         .catch(error => {
             console.error('Error:', error);
+            alert('Error playing audio: ' + error.message);
         });
     }
 
     const chatForm = document.getElementById('chat-form');
     const chatBox = document.getElementById('chat-box');
+    const undoButton = document.getElementById('undo-button');
 
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const userMessage = document.getElementById('message').value;
+
+        // Disable the undo button until the message is processed
+        undoButton.disabled = true;
 
         // Display user's message
         const userDiv = document.createElement('div');
@@ -81,6 +95,17 @@
         })
         .then(response => response.json())
         .then(data => {
+
+            // Display coach's feedback
+            const coachDiv = document.createElement('div');
+            coachDiv.className = 'coach-feedback';
+            coachDiv.innerHTML = '<strong>Sales Coach Feedback:</strong><br>Score: ' + data.score + '/10<br>' + formatMessage(data.feedback);
+
+            // Add play button to coach feedback
+            const coachPlayButton = createPlayButton('coach', data.feedback);
+            coachDiv.appendChild(coachPlayButton);
+
+            chatBox.appendChild(coachDiv);
 
             // Display prospect's response
             const prospectDiv = document.createElement('div');
@@ -109,17 +134,8 @@
             // Append the whole prospect message to the chat box
             chatBox.appendChild(prospectDiv);
 
-
-            // Display coach's feedback
-            const coachDiv = document.createElement('div');
-            coachDiv.className = 'coach-feedback';
-            coachDiv.innerHTML = '<strong>Sales Coach Feedback:</strong><br>Score: ' + data.score + '/10<br>' + formatMessage(data.feedback);
-
-            // Add play button to coach feedback
-            const coachPlayButton = createPlayButton('coach', data.feedback);
-            coachDiv.appendChild(coachPlayButton);
-
-            chatBox.appendChild(coachDiv);
+            // Enable the undo button after messages are processed
+            undoButton.disabled = false;
 
             // Scroll to bottom
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -127,7 +143,44 @@
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while processing your message.');
+            // Re-enable the undo button in case of error
+            undoButton.disabled = false;
         });
     });
+
+    // Add event listener for the undo button
+    undoButton.addEventListener('click', function() {
+        // Send a request to undo the last message
+        fetch('/undo_last_message', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the last messages from the chat UI
+                removeLastMessages();
+
+                // Disable the undo button after undoing
+                undoButton.disabled = true;
+            } else {
+                alert(data.error || 'Unable to undo the last message.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while undoing the last message.');
+        });
+    });
+
+    // Function to remove the last messages from the chat UI
+    function removeLastMessages() {
+        // Remove the last three messages (prospect's response, coach's feedback, user's message)
+        for (let i = 0; i < 3; i++) {
+            if (chatBox.lastChild) {
+                chatBox.removeChild(chatBox.lastChild);
+            }
+        }
+    }
 </script>
 {% endblock %}

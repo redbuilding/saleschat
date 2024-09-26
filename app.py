@@ -128,6 +128,75 @@ def reset():
     session.clear()
     return redirect(url_for('index'))
 
+# @app.route('/tts_prospect', methods=['POST'])
+# def tts_prospect():
+#     text = request.form['text']
+#
+#     try:
+#         tts_model_choice = session.get('tts_model_choice', 'deepgram')  # Default to Deepgram
+#
+#         if tts_model_choice == 'deepgram':
+#             # Deepgram TTS code
+#             SPEAK_OPTIONS = {"text": text}
+#             filename_p = "prospect.wav"
+#
+#             options = SpeakOptions(
+#                 model="aura-athena-en",
+#                 encoding="linear16",
+#                 container="wav"
+#             )
+#
+#             # Generate speech
+#             deepgram_client.speak.rest.v("1").save(filename_p, SPEAK_OPTIONS, options)
+#             # Return the audio data as a response
+#             return send_file(
+#                 filename_p,
+#                 mimetype='audio/wav',
+#                 as_attachment=False,
+#                 download_name='prospect.wav'
+#             )
+#         elif tts_model_choice == 'elevenlabs':
+#             # ElevenLabs TTS code
+#             save_file_path = "prospect.mp3"
+#
+#             # Generate speech and save to file
+#             response = client.text_to_speech.convert(
+#                 voice_id="WLKp2jV6nrS8aMkPPDRO",  # 'Rachel' voice ID 21m00Tcm4TlvDq8ikWAM
+#                 optimize_streaming_latency="0",
+#                 output_format="mp3_22050_32",
+#                 text=text,
+#                 model_id="eleven_multilingual_v2",
+#                 voice_settings=VoiceSettings(
+#                     stability=0.5,
+#                     similarity_boost=0.5,
+#                     style=0.5,
+#                     use_speaker_boost=False,
+#                 ),
+#             )
+#
+#             # Write the audio stream to the file
+#             with open(save_file_path, "wb") as f:
+#                 for chunk in response:
+#                     if chunk:
+#                         f.write(chunk)
+#
+#             # Return the audio file as a response
+#             return send_file(
+#                 save_file_path,
+#                 mimetype='audio/mpeg',
+#                 as_attachment=False,
+#                 download_name='prospect.mp3'
+#             )
+#
+#         else:
+#             return make_response("Invalid TTS model selected", 400)
+#
+#     except Exception as e:
+#         logging.error(f"TTS Error: {e}")
+#         return make_response("Error generating audio", 500)
+
+
+
 @app.route('/tts_prospect', methods=['POST'])
 def tts_prospect():
     text = request.form['text']
@@ -148,7 +217,7 @@ def tts_prospect():
 
             # Generate speech
             deepgram_client.speak.rest.v("1").save(filename_p, SPEAK_OPTIONS, options)
-            # Return the audio data as a response
+
             return send_file(
                 filename_p,
                 mimetype='audio/wav',
@@ -161,7 +230,7 @@ def tts_prospect():
 
             # Generate speech and save to file
             response = client.text_to_speech.convert(
-                voice_id="WLKp2jV6nrS8aMkPPDRO",  # 'Rachel' voice ID 21m00Tcm4TlvDq8ikWAM
+                voice_id="WLKp2jV6nrS8aMkPPDRO",
                 optimize_streaming_latency="0",
                 output_format="mp3_22050_32",
                 text=text,
@@ -180,20 +249,95 @@ def tts_prospect():
                     if chunk:
                         f.write(chunk)
 
-            # Return the audio file as a response
             return send_file(
                 save_file_path,
                 mimetype='audio/mpeg',
                 as_attachment=False,
                 download_name='prospect.mp3'
             )
-
         else:
-            return make_response("Invalid TTS model selected", 400)
+            return jsonify({'error': 'Invalid TTS model selected'}), 400
 
+    except requests.exceptions.ConnectionError as e:
+        logging.error(f"TTS Connection Error: {e}")
+        return jsonify({'error': 'Unable to connect to the TTS service. Please check your network connection.'}), 500
+    except requests.exceptions.Timeout as e:
+        logging.error(f"TTS Timeout Error: {e}")
+        return jsonify({'error': 'The TTS service timed out. Please try again later.'}), 500
     except Exception as e:
-        logging.error(f"TTS Error: {e}")
-        return make_response("Error generating audio", 500)
+        logging.error(f"TTS Error: {e}, Text: {text}, TTS Model: {tts_model_choice}")
+        return jsonify({'error': f'Error generating audio: {str(e)}'}), 500
+
+
+
+# @app.route('/tts_coach', methods=['POST'])
+# def tts_coach():
+#     text = request.form['text']
+#
+#     try:
+#         tts_model_choice = session.get('tts_model_choice', 'deepgram')  # Default to Deepgram
+#
+#         if tts_model_choice == 'deepgram':
+#             # Deepgram TTS code
+#             SPEAK_OPTIONS = {"text": text}
+#             filename_c = "coach.wav"
+#
+#             options = SpeakOptions(
+#                 model="aura-zeus-en",
+#                 encoding="linear16",
+#                 container="wav"
+#             )
+#
+#             # Generate speech
+#             deepgram_client.speak.rest.v("1").save(filename_c, SPEAK_OPTIONS, options)
+#             # Return the audio data as a response
+#             return send_file(
+#                 filename_c,
+#                 mimetype='audio/wav',
+#                 as_attachment=False,
+#                 download_name='coach.wav'
+#             )
+#         elif tts_model_choice == 'elevenlabs':
+#             # ElevenLabs TTS code
+#             save_file_path = "coach.mp3"
+#
+#             # Generate speech and save to file
+#             response = client.text_to_speech.convert(
+#                 voice_id="ILgPX10hGFRhOTGUqbZX",
+#                 optimize_streaming_latency="0",
+#                 output_format="mp3_22050_32",
+#                 text=text,
+#                 model_id="eleven_multilingual_v2",
+#                 voice_settings=VoiceSettings(
+#                     stability=0.5,
+#                     similarity_boost=0.5,
+#                     style=0.5,
+#                     use_speaker_boost=False,
+#                 ),
+#             )
+#
+#             # Write the audio stream to the file
+#             with open(save_file_path, "wb") as f:
+#                 for chunk in response:
+#                     if chunk:
+#                         f.write(chunk)
+#
+#             # Return the audio file as a response
+#             return send_file(
+#                 save_file_path,
+#                 mimetype='audio/mpeg',
+#                 as_attachment=False,
+#                 download_name='coach.mp3'
+#             )
+#
+#         else:
+#             return make_response("Invalid TTS model selected", 400)
+#
+#     except Exception as e:
+#         logging.error(f"TTS Error: {e}")
+#         return make_response("Error generating audio", 500)
+
+
 
 @app.route('/tts_coach', methods=['POST'])
 def tts_coach():
@@ -215,7 +359,7 @@ def tts_coach():
 
             # Generate speech
             deepgram_client.speak.rest.v("1").save(filename_c, SPEAK_OPTIONS, options)
-            # Return the audio data as a response
+
             return send_file(
                 filename_c,
                 mimetype='audio/wav',
@@ -247,20 +391,59 @@ def tts_coach():
                     if chunk:
                         f.write(chunk)
 
-            # Return the audio file as a response
             return send_file(
                 save_file_path,
                 mimetype='audio/mpeg',
                 as_attachment=False,
                 download_name='coach.mp3'
             )
-
         else:
-            return make_response("Invalid TTS model selected", 400)
+            return jsonify({'error': 'Invalid TTS model selected'}), 400
 
+    except requests.exceptions.ConnectionError as e:
+        logging.error(f"TTS Connection Error: {e}")
+        return jsonify({'error': 'Unable to connect to the TTS service. Please check your network connection.'}), 500
+    except requests.exceptions.Timeout as e:
+        logging.error(f"TTS Timeout Error: {e}")
+        return jsonify({'error': 'The TTS service timed out. Please try again later.'}), 500
     except Exception as e:
-        logging.error(f"TTS Error: {e}")
-        return make_response("Error generating audio", 500)
+        logging.error(f"TTS Error: {e}, Text: {text}, TTS Model: {tts_model_choice}")
+        return jsonify({'error': f'Error generating audio: {str(e)}'}), 500
+
+
+@app.route('/undo_last_message', methods=['POST'])
+def undo_last_message():
+    try:
+        # Ensure conversation history exists and has enough messages
+        if 'conversation' not in session or len(session['conversation']) < 3:
+            return jsonify({'success': False, 'error': 'No messages to undo.'})
+
+        # Remove the last message from the prospect
+        last_message = session['conversation'].pop()
+        if last_message['sender'] != 'Prospect':
+            # If the last message is not from the prospect, something went wrong
+            session['conversation'].append(last_message)  # Put it back
+            return jsonify({'success': False, 'error': 'Unexpected last message sender.'})
+
+        # Remove the user's last message
+        last_message = session['conversation'].pop()
+        if last_message['sender'] != 'User':
+            # If the last message is not from the user, something went wrong
+            session['conversation'].append(last_message)  # Put it back
+            return jsonify({'success': False, 'error': 'Unexpected last message sender.'})
+
+        # Remove the last coach feedback
+        if 'coach_feedback' in session and len(session['coach_feedback']) > 0:
+            session['coach_feedback'].pop()
+
+        # Explicitly save the session
+        session.modified = True
+
+        return jsonify({'success': True})
+    except Exception as e:
+        logging.error(f"Error in undo_last_message: {e}")
+        return jsonify({'success': False, 'error': 'An error occurred while undoing the last message.'})
+
 
 def get_prospect_response(user_message):
     # Build system message for the prospect
